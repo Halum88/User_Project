@@ -12,15 +12,22 @@ dict = []
 def scrapping():
     response = get(base_url)
     soup = BeautifulSoup(response.text, 'html.parser')
-    proxy_list = soup.find_all('div', class_ = 'table-responsive fpl-list')
+    proxy_list = soup.find('div', class_ = 'table-responsive fpl-list')
     global count
     global dict
     
+    
+    
     try:
         for all_proxy in proxy_list:
-            ip = all_proxy.find('tbody').find_all('tr')
-            
-            
+            ip = all_proxy.find_all('tr')
+            for j in ip:
+                ip_2 = j.find('td')
+                dict.append(ip_2)
+        print(dict)
+    
+
+  #all_task.find('div', {'class':'divider'}).find('span', {'class':'comments-count'})['title']          
             
     
         
