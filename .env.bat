@@ -1,0 +1,1 @@
+setx APP_HOME = "C:\Program Files (x86)\Programming\Projects\User_Project"
