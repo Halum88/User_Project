@@ -1,7 +1,8 @@
 import os
-from bs4 import BeautifulSoup
+import requests
+import random
 from requests import get
-
+from bs4 import BeautifulSoup
 
 
 base_url = 'https://free-proxy-list.net/'
@@ -11,7 +12,7 @@ proxy_dict = []
 #def init_db():
 
 
-def scrapping():
+def scrap_proxy():
     response = get(base_url)
     soup = BeautifulSoup(response.text, 'html.parser')
     proxy_list = soup.find('table', class_ = 'table table-striped table-bordered').find_all('tr')[1:]
@@ -29,13 +30,14 @@ def scrapping():
     except Exception as error:
         print('Error', error)   
 
+
+
+    # proxy_random = random.choice(proxy_dict)    # рандом прокси
     
-
-
 
 
 
 #___main___#
 
-scrapping()
+scrap_proxy()
 
