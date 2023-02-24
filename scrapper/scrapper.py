@@ -1,6 +1,7 @@
 import os
 import requests
 import random
+import psycopg2
 from requests import get
 from bs4 import BeautifulSoup
 
@@ -9,9 +10,27 @@ base_url = 'https://free-proxy-list.net/'
 count = 0
 proxy_dict = []
 
-#def init_db():
-
-
+def init_db():
+    con = psycopg2.connect(
+    database="proxy_db", 
+    user="auhor", 
+    password="qwerty", 
+    host="127.0.0.1", 
+    port="5432"
+)   
+    print("Database opened successfully")
+    cursor=con.cursor()
+    cursor.execute('INSERT INTO proxy(id) VALUES (1)')
+   
+    con.commit()
+    
+    cursor.execute('SELECT * FROM proxy')
+    ok = cursor.fetchall()
+    print(ok)
+    con.close()
+    
+    
+    
 def scrap_proxy():
     response = get(base_url)
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -38,6 +57,6 @@ def scrap_proxy():
 
 
 #___main___#
-
-scrap_proxy()
+init_db()
+# scrap_proxy()
 
