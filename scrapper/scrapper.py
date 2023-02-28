@@ -11,7 +11,6 @@ base_url = 'https://free-proxy-list.net/'
 db_name = os.environ['DB_NAME']
 user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
-count = 0
 proxy_dict = []
 max_id = 1
 
@@ -31,7 +30,7 @@ def init_db():
         db.close()
 
 
-def id_max():
+def maxim_id():
     try:
         db = psycopg2.connect(
         database = db_name, 
@@ -53,13 +52,13 @@ def id_max():
         db.close()
 
  
-    
 def scrap_proxy():
     response = get(base_url)
     soup = BeautifulSoup(response.text, 'html.parser')
     proxy_list = soup.find('table', class_ = 'table table-striped table-bordered').find_all('tr')[1:]
-    global proxy_dict
     global max_id
+    global proxy_dict
+    
     
     ###Подключаемся к БД###
     try:
@@ -83,55 +82,29 @@ def scrap_proxy():
         port = tds[1].text.strip()
         host = f"{ip}:{port}"
         proxy_dict.append(host)
-
-
-        ###Проверка на дубли хостов###
-        try:
-            if len(proxy_dict) == 0 or host not in proxy_dict:
-                cursor.execute('''INSERT INTO proxy(id, host) VALUES (%s,%s) 
-                                RETURNING id''',(None, str(host)))
-                ip_db = cursor.fetchone()
-                proxy_dict[host] = ip_db[0]
-        except Exception as error:
-            print('DB error', error)
         
         
     ###Запись хостов в БД###
-    for hosts in proxy_dict:    
         try:
             max_id += 1
             cursor.execute('''INSERT INTO proxy VALUES (%s,%s) 
                               ON CONFLICT (host) DO UPDATE 
                               SET host=%s
-                              ''',[max_id, hosts, hosts])
+                              ''',[max_id, host, host])
         
         except Exception as error:
             raise Exception('Recording error', error)
+
             
     db.commit()
     db.close()
     time.sleep(1 + (random.random() * (9 - 5)))
 
-        # proxy_random = random.choice(proxy_dict)    # рандом прокси
+    # proxy_random = random.choice(proxy_dict)    # рандом прокси
     
-
-
-# def test():
-#     db = db = psycopg2.connect(
-#             database = db_name, 
-#             user = user_name, 
-#             password = user_pw, 
-#             host="127.0.0.1", 
-#             port="5432"
-#             )
-#     cursor = db.cursor()
-#     cursor.execute('''SELECT * FROM proxy order by id''')
-#     test = cursor.fetchall()
-#     print(*test)
-
 
 ###___main___###
 init_db()
-id_max()
+maxim_id()
 scrap_proxy()
-# test()
+
