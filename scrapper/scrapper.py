@@ -44,7 +44,7 @@ def maxim_id():
         cursor.execute('''SELECT max(id) FROM proxy''')
         max_id = cursor.fetchone()[0]
         if max_id is None:
-            max_id = 0
+            max_id = 0 
             
     except Exception as error:
         raise Exception('Nо connect to DB!', error) 
@@ -91,7 +91,7 @@ def scrap_proxy():
                               ON CONFLICT (host) DO UPDATE 
                               SET host=%s
                               ''',[max_id, host, host])
-        
+            
         except Exception as error:
             raise Exception('Recording error', error)
 
@@ -101,10 +101,11 @@ def scrap_proxy():
     time.sleep(1 + (random.random() * (9 - 5)))
 
     # proxy_random = random.choice(proxy_dict)    # рандом прокси
-    
 
+    
 ###___main___###
 init_db()
 maxim_id()
 scrap_proxy()
+
 
