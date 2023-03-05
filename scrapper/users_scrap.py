@@ -5,17 +5,18 @@ import os
 import psycopg2
 
 
-ua = UserAgent()
-url = 'https://httpbin.org/user-agent'
+test_url1="https://httpbin.org/user-agent"
+test_url2="http://icanhazip.com"
 
+
+url = "https://vypiska-nalog.com/reestr"
 db_name = os.environ['DB_NAME']
 user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
 dict = []
-headers = {'User-Agent': ua.random}
+ua = UserAgent()
+headers = {'User-Agent': ua.random} #рандомный user-agent
 
-result = requests.get(url, headers=headers)
-# print(result.content)
 
 ###Рандомный прокси из БД###
 def rand_proxy():     
@@ -34,7 +35,7 @@ def rand_proxy():
             dict.append(j)
     return dict
    
-
+###Создаем сессию###
 def session():
         prx = rand_proxy()
         session = requests.Session()
@@ -43,12 +44,15 @@ def session():
         return session
 
 
-def start():
+def connect_site():
     for i in range(5):
-        s = session()
+        ses = session()
         try:
-            print("Страница запроса с IP:", s.get("http://icanhazip.com", timeout=1.5).text.strip())
+            print('TEST: ', ses.get(test_url2, headers=headers, timeout=1.5).text.strip())
         except Exception as error:
             continue
-
-start()
+        
+        
+        
+###___main___###
+connect_site()
