@@ -11,7 +11,7 @@ url = 'https://httpbin.org/user-agent'
 db_name = os.environ['DB_NAME']
 user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
-
+dict = []
 headers = {'User-Agent': ua.random}
 
 result = requests.get(url, headers=headers)
@@ -29,27 +29,26 @@ def rand_proxy():
     cursor = db.cursor()
     cursor.execute('''SELECT host FROM proxy''')
     host = cursor.fetchall()
-    proxy_random = random.choice(host)
-    for pxy in proxy_random:
-        return pxy
-    
+    for i in host:
+        for j in i:
+            dict.append(j)
+    return dict
+   
 
-proxy = rand_proxy()
-print(proxy)
-
-# def get_session(proxies):
-#     # создать HTTP‑сеанс
-#     session = requests.Session()
-#     # выбираем один случайный прокси
-#     proxy = random.choice(proxies)
-#     session.proxies = {"http": proxy, "https": proxy}
-#     return session
+def session():
+        prx = rand_proxy()
+        session = requests.Session()
+        proxy = random.choice(prx)
+        session.proxies = {"http": proxy, "https": proxy}
+        return session
 
 
+def start():
+    for i in range(5):
+        s = session()
+        try:
+            print("Страница запроса с IP:", s.get("http://icanhazip.com", timeout=1.5).text.strip())
+        except Exception as error:
+            continue
 
-# for i in range(5):
-#     s = get_session(proxies)
-#     try:
-#         print("Страница запроса с IP:", s.get("http://icanhazip.com", timeout=1.5).text.strip())
-#     except Exception as e:
-#         continue
+start()
