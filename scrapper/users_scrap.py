@@ -60,15 +60,14 @@ def session():
 def scrapper():
     for i in range(5):
         prox = session()
-        print(prox)
         try:
-            response = get(url=base_url, headers=headers, proxies=prox, timeout=1.5)
+            response = get(base_url, headers=headers, proxies=prox, verify=False, timeout=5)
             soup = BeautifulSoup(response.text, 'html.parser')
-            publication = soup.find_all('div', class_ = 'col-md-6').text.strip()   
+            publication = soup.find('div', class_ = 'col-md-6').text.strip()
             print(publication)
         except Exception as error:
-            continue
-    
+            print(error)
+
         
         
 ###___main___###
