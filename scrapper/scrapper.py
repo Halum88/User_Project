@@ -102,10 +102,25 @@ def scrap_proxy():
 
     # proxy_random = random.choice(proxy_dict)    # рандом прокси
 
+
+def check_proxy():
+    for px in proxy_dict:
+        proxies = {"http": px, "https": px}
+        try:
+            prox = get('http://icanhazip.com', proxies=proxies, timeout=1.3).text.strip()
+            print(prox)
+        except Exception as e:
+            proxy_dict.remove(px)
+    print(len(proxy_dict))
+  
+            
+
+
     
 ###___main___###
 init_db()
 maxim_id()
 scrap_proxy()
-
+print(len(proxy_dict))
+check_proxy()
 
