@@ -13,6 +13,8 @@ user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
 proxy_dict = []
 max_id = 1
+proxy_db = []
+
 
 ###Инициализая БД###
 def init_db():
@@ -98,15 +100,14 @@ def check_proxy():
                 raise Exception('Recording error', error)
         except Exception as e:
            proxy_dict.remove(px)
+           
     
     db.commit()
     db.close()
 
-  
-    
+
 ###___main___###
 init_db()
 maxim_id()
 scrap_proxy()
 check_proxy()
-
