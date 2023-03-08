@@ -71,6 +71,7 @@ def scrap_proxy():
 
 
 def check_proxy():
+    global max_id
     try:
         db = psycopg2.connect(
             database = db_name, 
