@@ -10,7 +10,7 @@ test_url1="https://httpbin.org/user-agent"
 test_url2="http://icanhazip.com"
 
 
-base_url = "https://vypiska-nalog.com/reestr"
+base_url = "https://www.1cont.ru/contragent/by-region"
 db_name = os.environ['DB_NAME']
 user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
@@ -45,31 +45,19 @@ def session():
         return proxies
 
 
-# def connect_site():
-#     for i in range(5):
-#         prox = session()
-#         try:
-#             connecting = get(test_url2, headers=headers, proxies=prox, timeout=1.5).text.strip()
-#             return connecting
-#         except Exception as error:
-#             continue
-        
-# print(session())
-
-
 def scrapper():
     for i in range(5):
         prox = session()
         try:
             response = get(base_url, headers=headers, proxies=prox, verify=False, timeout=5)
             soup = BeautifulSoup(response.text, 'html.parser')
-            publication = soup.find('div', class_ = 'col-md-6').text.strip()
+            publication = soup.find('div', class_ = 'row').text.strip()
             print(publication)
+        
         except Exception as error:
-            print(error)
+            raise Exception('Error:', error)
 
         
         
 ###___main___###
-# print(connect_site())
 scrapper()
