@@ -89,7 +89,7 @@ def check_proxy():
     for px in proxy_dict:
         proxies = {"http": px, "https": px}
         try:
-            get('http://icanhazip.com', proxies=proxies, timeout=1.3).text.strip()
+            get('http://icanhazip.com', proxies=proxies, timeout=0.9).text.strip()
             try:
                 max_id += 1
                 cursor.execute('''INSERT INTO proxy VALUES (%s,%s) 
