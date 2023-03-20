@@ -14,10 +14,12 @@ user_pw = os.environ['USER_PW']
 
 
 count = 0
+count_1 = 0
+count_2 = 0
 max_id = 1
 proxy_dict = []
-proxies_https = []
-proxies_http = []
+prx_https = []
+prx_http = []
 
 ###Инициализая БД###
 def init_db():
@@ -67,41 +69,67 @@ def scrap_proxy():
                     port = td[1].text.strip()
                     protocol = td[6].text.strip().lower()
                     if protocol == 'yes':
-                        proxies_https.append(f"https://{ip}:{port}")
+                        prx_https.append(f"https://{ip}:{port}")
                     elif protocol == 'no':
-                        proxies_http.append(f"http://{ip}:{port}")            
+                        prx_http.append(f"http://{ip}:{port}")            
     except Exception as e:
         raise Exception("Error:", response.status_code)
 
 
 def check():
-    c1 = 0
-    c2 = 0
+    global count_1
+    global count_2
+    global proxy_dict
     try:
-        for i in proxies_https:
-            c1 += 1
+        for i in prx_https:
             response = requests.get("https://www.google.com", proxies={'https://':i}, timeout=5)
             if response.status_code == 200:
-                print('https: OK', c1, i)
+                count_1 += 1  
+                proxy_dict.append(i) 
             else:
                 print('https: NOT OK')
+        print('https получено:', count_1)
     except Exception as e:
-        print('ERROR:', e)
+        print('ERROR HTTPS:', e)
 
     try:
-        for i in proxies_http:
-            c2 += 1
+        for i in prx_http:
             response = requests.get("https://www.google.com", proxies={'http://':i}, timeout=5)
             if response.status_code == 200:
-                print('http: OK', c2, i)
+                count_2 += 1
+                proxy_dict.append(i) 
             else:
                 print('http: NOT OK')
+        print('http получено:', count_2)
     except Exception as e:
-        print('ERROR:', e)
+        print('ERROR HTTP:', e)
 
 
+def rec_db():
+    global max_id
+    try:
+        db = psycopg2.connect(
+            database = db_name, user = user_name, password = user_pw, host="127.0.0.1", port="5432"
+        )   
+        cursor = db.cursor()
+        for px in proxy_dict:
+            max_id += 1
+            cursor.execute(('''INSERT INTO proxy(id, host)
+                               VALUES (%s,%s)
+                               ON CONFLICT (host)
+                               DO UPDATE
+                               SET id=%s
+                            '''),[max_id, px, max_id])
+    except Exception as e:
+        raise e
+    
+    db.commit()
+    db.close()
+    
+    
 ###___main___###
 init_db()
 maxim_id()
 scrap_proxy()
 check()
+rec_db()
