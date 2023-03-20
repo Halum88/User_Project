@@ -5,11 +5,9 @@ import os
 import psycopg2
 from bs4 import BeautifulSoup
 from requests import get
+from threading import Timer
 
-test_url1="https://httpbin.org/user-agent"
 test_url2="http://icanhazip.com"
-
-
 base_url = "https://www.1cont.ru/contragent/by-region"
 db_name = os.environ['DB_NAME']
 user_name = os.environ['USER_NAME']
@@ -46,18 +44,25 @@ def session():
 
 
 def scrapper():
-    for i in range(5):
-        prox = session()
-        try:
-            response = get(base_url, headers=headers, proxies=prox, verify=False, timeout=5)
-            soup = BeautifulSoup(response.text, 'html.parser')
-            publication = soup.find('div', class_ = 'row').text.strip()
-            print(publication)
+    scrapper.call_count += 1
+    
+    if scrapper.call_count > 10:
+        print("Nope...")
+        return
+    
+    prox = session()
+    try:
+        response = get(test_url2, headers=headers, proxies=prox, verify=False, timeout=5)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        # publication = soup.find('div', class_ = 'row').text.strip()
+        # print(publication)
+        print(response.text.strip)
         
-        except Exception as error:
-            raise Exception('Error:', error)
+    except Exception as error:
+        print('Error:', error)
+        Timer(4, scrapper).start()
 
         
-        
+scrapper.call_count = 0
 ###___main___###
 scrapper()
