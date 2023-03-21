@@ -63,7 +63,7 @@ def scrap_proxy():
             
             for tr in tbody.find_all('tr'):
                 count += 1
-                if count <= 50:
+                if count <= 30:
                     td = tr.find_all('td')
                     ip = td[0].text.strip()
                     port = td[1].text.strip()
