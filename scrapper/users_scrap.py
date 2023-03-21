@@ -39,27 +39,31 @@ def rand_proxi():
 def session():
         prx = rand_proxi()
         proxi = random.choice(prx)
-        proxies = {"http": proxi, "https": proxi}
-        return proxies
+        proxis = {"http": proxi, "https": proxi}
+        return proxis
 
 
 def scrapper():
     scrapper.call_count += 1
     
-    if scrapper.call_count > 10:
+    if scrapper.call_count > 3:
         print("Nope...")
         return
     
     prox = session()
     try:
-        response = get(test_url2, headers=headers, proxies=prox, verify=False, timeout=5)
+        response = get(base_url, headers=headers, proxies=prox, verify=False, timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
-        # publication = soup.find('div', class_ = 'row').text.strip()
-        # print(publication)
-        print(response.text.strip)
+        list = soup.find('div', class_='col-xs-12 col-sm-12 col-md-6 col-lg-4')
+        ul = list.find('ul')
+        for li in ul.find_all('li'):  
+            a = li.find_all('a')
+            region = a[0].text.strip()  #Регион
+            link = li.find('a', href=True)['href']   #Ссылка
+            print(region, '-', base_url + link)
         
     except Exception as error:
-        print('Error:', error)
+        print('Error:',prox,'---', error)
         Timer(4, scrapper).start()
 
         
