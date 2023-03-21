@@ -69,9 +69,9 @@ def scrap_proxy():
                     port = td[1].text.strip()
                     protocol = td[6].text.strip().lower()
                     if protocol == 'yes':
-                        prx_https.append(f"https://{ip}:{port}")
+                        prx_https.append(f"{ip}:{port}")
                     elif protocol == 'no':
-                        prx_http.append(f"http://{ip}:{port}")            
+                        prx_http.append(f"{ip}:{port}")            
     except Exception as e:
         raise Exception("Error:", response.status_code)
 
