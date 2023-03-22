@@ -52,7 +52,7 @@ def scrapper():
     
     prox = session()
     try:
-        response = get(base_url, headers=headers, proxies=prox, verify=False, timeout=5)
+        response = get(base_url, headers=headers, proxies=prox, timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
         list = soup.find('div', class_='col-xs-12 col-sm-12 col-md-6 col-lg-4')
         ul = list.find('ul')
@@ -62,11 +62,21 @@ def scrapper():
             link = li.find('a', href=True)['href']   #Ссылка
             print(region, '-', base_url + link)
         
+        db = psycopg2.connect(database = 'proxies_ok', user = user_name, password = user_pw, host="127.0.0.1", port="5432"
+            )
+        cursor = db.cursor()  
+        cursor.execute(('''INSERT INTO proxies_ok(id, host)
+                               VALUES (%s,%s)
+                               ON CONFLICT (host)
+                               DO UPDATE
+                               SET id=%s'''),[None, prox])  
+        print(prox)
+        
     except Exception as error:
         print('Error:',prox,'---', error)
         Timer(4, scrapper).start()
 
-        
+#  {'http': '144.76.60.58:8118', 'https': '144.76.60.58:8118'}       
 scrapper.call_count = 0
 ###___main___###
 scrapper()
