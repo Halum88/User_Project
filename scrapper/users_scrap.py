@@ -46,7 +46,7 @@ def session():
 def scrapper():
     scrapper.call_count += 1
     
-    if scrapper.call_count > 3:
+    if scrapper.call_count > 20:
         print("Nope...")
         return
     
@@ -70,13 +70,16 @@ def scrapper():
                                ON CONFLICT (host)
                                DO UPDATE
                                SET id=%s'''),[None, prox])  
+        db.commit()
+        db.close()
         print(prox)
         
     except Exception as error:
         print('Error:',prox,'---', error)
         Timer(4, scrapper).start()
 
-#  {'http': '144.76.60.58:8118', 'https': '144.76.60.58:8118'}       
+#  {'http': '144.76.60.58:8118', 'https': '144.76.60.58:8118'}    
+# {'http': '162.55.188.41:8020', 'https': '162.55.188.41:8020'}   
 scrapper.call_count = 0
 ###___main___###
 scrapper()
