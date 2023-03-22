@@ -62,7 +62,7 @@ def scrapper():
             link = li.find('a', href=True)['href']   #Ссылка
             print(region, '-', base_url + link)
         
-        db = psycopg2.connect(database = 'proxies_ok', user = user_name, password = user_pw, host="127.0.0.1", port="5432"
+        db = psycopg2.connect(database = db_name, user = user_name, password = user_pw, host="127.0.0.1", port="5432"
             )
         cursor = db.cursor()  
         cursor.execute(('''INSERT INTO proxies_ok(id, host)
