@@ -15,7 +15,7 @@ user_pw = os.environ['USER_PW']
 dict = []
 ua = UserAgent()
 headers = {'User-Agent': ua.random} #рандомный user-agent
-
+dict_ok = []
 
 ###Рандомный прокси из БД###
 def rand_proxi():     
@@ -39,8 +39,7 @@ def rand_proxi():
 def session():
         prx = rand_proxi()
         proxi = random.choice(prx)
-        proxis = {"http": proxi, "https": proxi}
-        return proxis
+        return proxi
 
 
 def scrapper():
@@ -50,9 +49,10 @@ def scrapper():
         print("Nope...")
         return
     
-    prox = session()
+    proxi = session()
+    proxis = {"http": proxi, "https": proxi}
     try:
-        response = get(base_url, headers=headers, proxies=prox, timeout=5)
+        response = get(base_url, headers=headers, proxies=proxis, timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
         list = soup.find('div', class_='col-xs-12 col-sm-12 col-md-6 col-lg-4')
         ul = list.find('ul')
@@ -69,17 +69,18 @@ def scrapper():
                                VALUES (%s,%s)
                                ON CONFLICT (host)
                                DO UPDATE
-                               SET id=%s'''),[None, prox])  
+                               SET id=%s'''),[None, str(proxi)])  
         db.commit()
         db.close()
-        print(prox)
+        print(proxi)
         
     except Exception as error:
-        print('Error:',prox,'---', error)
+        print('Error:',proxi,'---', error)
         Timer(4, scrapper).start()
 
 #  {'http': '144.76.60.58:8118', 'https': '144.76.60.58:8118'}    
 # {'http': '162.55.188.41:8020', 'https': '162.55.188.41:8020'}   
+# {'http': '8.219.176.202:8080', 'https': '8.219.176.202:8080'}
 scrapper.call_count = 0
 ###___main___###
 scrapper()
