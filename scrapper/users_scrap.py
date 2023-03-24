@@ -44,8 +44,8 @@ def session():
 
 def scrapper():
     scrapper.call_count += 1
-    
-    if scrapper.call_count > 20:
+    count = 0
+    if scrapper.call_count > 50:
         print("Nope...")
         return
     
@@ -60,20 +60,21 @@ def scrapper():
             a = li.find_all('a')
             region = a[0].text.strip()  #Регион
             link = li.find('a', href=True)['href']   #Ссылка
+            count+=1
             print(region, '-', base_url + link)
         
         db = psycopg2.connect(database = db_name, user = user_name, password = user_pw, host="127.0.0.1", port="5432"
             )
         cursor = db.cursor()  
-        cursor.execute(('''INSERT INTO proxies_ok(id, host)
-                               VALUES (%s,%s)
+        cursor.execute(('''INSERT INTO proxies_ok(host)
+                               VALUES (%s)
                                ON CONFLICT (host)
-                               DO UPDATE
-                               SET id=%s'''),[None, str(proxi)])  
+                               DO NOTHING'''),[str(proxi)])  
         db.commit()
         db.close()
         print(proxi)
-        
+                
+        Timer(4, scrapper).start()
     except Exception as error:
         print('Error:',proxi,'---', error)
         Timer(4, scrapper).start()
@@ -81,6 +82,8 @@ def scrapper():
 #  {'http': '144.76.60.58:8118', 'https': '144.76.60.58:8118'}    
 # {'http': '162.55.188.41:8020', 'https': '162.55.188.41:8020'}   
 # {'http': '8.219.176.202:8080', 'https': '8.219.176.202:8080'}
+# 91.106.65.107:9812
+# 200.105.215.22:33630
 scrapper.call_count = 0
 ###___main___###
 scrapper()
