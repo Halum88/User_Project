@@ -49,6 +49,11 @@ def scrapper():
         print("Nope...")
         return
     
+    db = psycopg2.connect(
+                database = db_name, user = user_name, password = user_pw, host="127.0.0.1", port="5432"
+            )   
+    cursor = db.cursor() 
+    
     proxi = session()
     proxis = {"http://": proxi, "https://": proxi}
     try:
@@ -58,16 +63,23 @@ def scrapper():
         ul = list.find('ul')
         for li in ul.find_all('li'):  
             a = li.find_all('a')
-            region = a[0].text.strip()  #Регион
-            link = li.find('a', href=True)['href']   #Ссылка
-            count+=1
-            print(region, '-', base_url + link)
-                        
+            name = a[0].text.strip()  #Регион
+            l = li.find('a', href=True)['href']   #Ссылка
+            link = base_url + l
+            count += 1    
 
+            cursor.execute(('''INSERT INTO region(name,link) 
+                              VALUES (%s, %s)
+                            '''),[name,link])
+                       
+        db.commit()
+        db.close()
+        
     except Exception as error:
         print('Error:',proxi,'---', error)
         Timer(4, scrapper).start()
 
+    
 scrapper.call_count = 0
 
 
