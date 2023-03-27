@@ -81,9 +81,6 @@ def check():
     try:
         for i in prx_list:
             response = requests.get("https://www.1cont.ru/contragent/by-region", headers=headers, proxies={'https://':i,'http://':i}, timeout=5)
-            soup = BeautifulSoup(response.text, 'html.parser')
-            test = soup.find('div', class_='content__inner lr-ident').find('h1', class_='h2').text
-            print(test, i)
             if response.status_code == 200:
                 count_1 += 1  
                 proxy_dict.append(i) 
