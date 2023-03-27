@@ -70,7 +70,10 @@ def scrapper():
 
             cursor.execute(('''INSERT INTO region(name,link) 
                               VALUES (%s, %s)
-                            '''),[name,link])
+                              ON CONFLICT (link)
+                              DO UPDATE
+                              SET name=%s
+                            '''),[name,link,name])
                        
         db.commit()
         db.close()
