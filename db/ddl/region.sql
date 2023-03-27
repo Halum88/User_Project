@@ -1,5 +1,5 @@
 CREATE TABLE region (
-    id integer FOREIGN KEY,
+    id integer PRIMARY KEY,
     name text,
     link text UNIQUE
     );
