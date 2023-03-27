@@ -50,7 +50,7 @@ def scrapper():
         return
     
     proxi = session()
-    proxis = {"http": proxi, "https": proxi}
+    proxis = {"http://": proxi, "https://": proxi}
     try:
         response = get(base_url, headers=headers, proxies=proxis, timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -62,19 +62,8 @@ def scrapper():
             link = li.find('a', href=True)['href']   #Ссылка
             count+=1
             print(region, '-', base_url + link)
-        
-        db = psycopg2.connect(database = db_name, user = user_name, password = user_pw, host="127.0.0.1", port="5432"
-            )
-        cursor = db.cursor()  
-        cursor.execute(('''INSERT INTO proxies_ok(host)
-                               VALUES (%s)
-                               ON CONFLICT (host)
-                               DO NOTHING'''),[str(proxi)])  
-        db.commit()
-        db.close()
-        print(proxi)
-                
-        Timer(4, scrapper).start()
+                        
+
     except Exception as error:
         print('Error:',proxi,'---', error)
         Timer(4, scrapper).start()
