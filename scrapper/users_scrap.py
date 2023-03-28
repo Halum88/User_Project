@@ -8,7 +8,7 @@ from requests import get
 from threading import Timer
 
 test_url2="http://icanhazip.com"
-base_url = "https://www.1cont.ru/contragent/by-region"
+base_url = "https://www.1cont.ru/contragent"
 db_name = os.environ['DB_NAME']
 user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
@@ -59,28 +59,32 @@ def scrapper():
     try:
         response = get(base_url, headers=headers, proxies=proxis, timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
-        list = soup.find('div', class_='col-xs-12 col-sm-12 col-md-6 col-lg-4')
-        ul = list.find('ul')
-        for li in ul.find_all('li'):  
-            a = li.find_all('a')
-            name = a[0].text.strip()  #Регион
-            l = li.find('a', href=True)['href']   #Ссылка
-            link = base_url + l
-            count += 1    
+        tbody = soup.find_all('div', class_='tr tbody-tr')
+        
+        for list in tbody:
+            count += 1
+            name = list.find('div', class_='td').find('a').text   #Имя
+            status = list.find('div', class_='td__text').text   #Статус
+            ogrn = list.find_all('div', class_='td__text')[1].text   #ОГРН
+            inn = list.find_all('div', class_='td__text')[2].text   #ИНН
+            activity = list.find_all('div', class_='td__text')[3].text   #ОКВЭД
+            date_registration = list.find_all('div', class_='td__text')[4].text   #Дата регистрации    
+            if status == 'Действует' and count < 5:     
+                print(name, status, ogrn, inn, activity, date_registration)
 
-            cursor.execute(('''INSERT INTO region(name,link) 
-                              VALUES (%s, %s)
-                              ON CONFLICT (link)
-                              DO UPDATE
-                              SET name=%s
-                            '''),[name,link,name])
+        #     cursor.execute(('''INSERT INTO region(name,link) 
+        #                       VALUES (%s, %s)
+        #                       ON CONFLICT (link)
+        #                       DO UPDATE
+        #                       SET name=%s
+        #                     '''),[name,link,name])
                        
-        db.commit()
-        db.close()
+        # db.commit()
+        # db.close()
         
     except Exception as error:
         print('Error:',proxi,'---', error)
-        Timer(4, scrapper).start()
+        # Timer(4, scrapper).start()
 
     
 scrapper.call_count = 0
