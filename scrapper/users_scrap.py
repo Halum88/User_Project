@@ -8,7 +8,8 @@ from requests import get
 from threading import Timer
 
 
-base_url = "https://www.1cont.ru/contragent/by-region"
+url = 'https://www.1cont.ru/contragent/by-region'
+base_url = 'https://www.1cont.ru'
 db_name = os.environ['DB_NAME']
 user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
@@ -83,7 +84,7 @@ def session():
         return proxi
 
 
-def scrapper(base_url):
+def scrapper(url):
     global max_id
     global dict_reg
     scrapper.call_count += 1
@@ -102,7 +103,7 @@ def scrapper(base_url):
     proxi = session()
     proxis = {"http://": proxi, "https://": proxi}
     try:
-        response = get(base_url, headers=headers, proxies=proxis, timeout=5)
+        response = get(url, headers=headers, proxies=proxis, timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
         reg_list = soup.find_all('a', class_='contragent-link')
         for reg in reg_list:
@@ -117,8 +118,33 @@ def scrapper(base_url):
                                RETURNING id''',(None, region, link))
                 id_db = cursor.fetchone()
                 dict_reg[region] = id_db[0]
+            
+            ###Получаем все ИП в каждом регионе и записываем в БД###
+            url_reg = base_url+link
+            response = get(url_reg, headers=headers, proxies=proxis, timeout=5)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            user_i = soup.find_all('div', class_='tr tbody-tr')
+            for user in user_i:
+                count += 1
+                name = user.find('div', class_='td').find('a').text              #Имя
+                l = user.find('div', class_='td').find('a', href=True)['href']   
+                link = base_url+l                                                #Ссылка
+                status = user.find('div', class_='td__text').text                #Статус
+                city = user.find_all('div', class_='td__text')[1].text           #Город
+                address = user.find_all('div', class_='td__text')[2].text        #Адрес
+                ogrn = user.find_all('div', class_='td__text')[3].text           #ОГРН
+                inn = user.find_all('div', class_='td__text')[4].text            #ИНН
+                activity = user.find_all('div', class_='td__text')[5].text       #ОКВЭД
+                date_registr = user.find_all('div', class_='td__text')[6].text   #Дата регистрации
 
-   
+                # if status == 'Действует' and count < 150:     
+                #     max_id += 1
+                #     cursor.execute(('''INSERT INTO users(id,name,status,inn,ogrn,activity,date) 
+                #                     VALUES (%s, %s, %s, %s, %s, %s, %s)
+                #                     ON CONFLICT (inn)
+                #                     DO UPDATE
+                #                     SET name=%s, status=%s, ogrn=%s,activity=%s,date=%s
+                #                     '''),[max_id,name,status,int(inn),int(ogrn),activity,date_registr,name,status,int(ogrn),activity,date_registr])
     
     
     
@@ -138,4 +164,4 @@ scrapper.call_count = 0
 ###___main___###
 
 region_id()
-scrapper(base_url)
+scrapper(url)
