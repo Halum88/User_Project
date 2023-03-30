@@ -14,11 +14,12 @@ db_name = os.environ['DB_NAME']
 user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
 dict = []
+dict_reg = {}
 ua = UserAgent()
 headers = {'User-Agent': ua.random} #рандомный user-agent
 dict_ok = []
 max_id = 1
-dict_reg = {}
+
 
 
 ###Рандомный прокси из БД###
@@ -84,12 +85,12 @@ def session():
         return proxi
 
 
-def scrapper(url):
+def scrapper():
     global max_id
     global dict_reg
     scrapper.call_count += 1
-    count = 0
-    if scrapper.call_count > 50:
+
+    if scrapper.call_count > 10:
         print("Nope...")
         return
     
@@ -98,8 +99,8 @@ def scrapper(url):
                 database = db_name, user = user_name, password = user_pw, host="127.0.0.1", port="5432"
             )   
     cursor = db.cursor() 
-    
-    
+
+
     proxi = session()
     proxis = {"http://": proxi, "https://": proxi}
     try:
@@ -109,7 +110,7 @@ def scrapper(url):
         for reg in reg_list:
             region = reg.text   #Регионы
             link = reg['href']   #Ссылки регионов
-            
+
             ###Запись регионов в бд###
             if len(dict_reg) == 0 or region not in dict_reg:
                 cursor.execute('''INSERT INTO region(id, name, link) VALUES(%s, %s,%s)
@@ -120,48 +121,49 @@ def scrapper(url):
                 dict_reg[region] = id_db[0]
             
             ###Получаем все ИП в каждом регионе и записываем в БД###
+            
             url_reg = base_url+link
             response = get(url_reg, headers=headers, proxies=proxis, timeout=5)
             soup = BeautifulSoup(response.text, 'html.parser')
             user_i = soup.find_all('div', class_='tr tbody-tr')
             for user in user_i:
-                count += 1
                 name = user.find('div', class_='td').find('a').text              #Имя
-                l = user.find('div', class_='td').find('a', href=True)['href']   
-                link = base_url+l                                                #Ссылка
-                status = user.find('div', class_='td__text').text                #Статус
-                city = user.find_all('div', class_='td__text')[1].text           #Город
-                address = user.find_all('div', class_='td__text')[2].text        #Адрес
-                ogrn = user.find_all('div', class_='td__text')[3].text           #ОГРН
-                inn = user.find_all('div', class_='td__text')[4].text            #ИНН
-                activity = user.find_all('div', class_='td__text')[5].text       #ОКВЭД
-                date_registr = user.find_all('div', class_='td__text')[6].text   #Дата регистрации
-
-                # if status == 'Действует' and count < 150:     
-                #     max_id += 1
-                #     cursor.execute(('''INSERT INTO users(id,name,status,inn,ogrn,activity,date) 
-                #                     VALUES (%s, %s, %s, %s, %s, %s, %s)
-                #                     ON CONFLICT (inn)
-                #                     DO UPDATE
-                #                     SET name=%s, status=%s, ogrn=%s,activity=%s,date=%s
-                #                     '''),[max_id,name,status,int(inn),int(ogrn),activity,date_registr,name,status,int(ogrn),activity,date_registr])
-    
-    
-    
-    
-    
-        db.commit()
-        db.close() 
+                if name.startswith('ИП'):
+                    l = user.find('div', class_='td').find('a', href=True)['href']   
+                    link = base_url+l                                                #Ссылка
+                    status = user.find('div', class_='td__text').text                #Статус
+                    city = user.find_all('div', class_='td__text')[1].text           #Город
+                    address = user.find_all('div', class_='td__text')[2].text        #Адрес
+                    ogrn = user.find_all('div', class_='td__text')[3].text           #ОГРН
+                    inn = user.find_all('div', class_='td__text')[4].text            #ИНН
+                    activity = user.find_all('div', class_='td__text')[5].text       #ОКВЭД
+                    date_registr = user.find_all('div', class_='td__text')[6].text   #Дата регистрации
+            
+                    if status == 'Действует':     
+                        max_id += 1
+                        cursor.execute(('''INSERT INTO users(id,name,status,city,address,ogrn,inn,activity,date,region_id) 
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                        ON CONFLICT (inn)
+                                        DO UPDATE
+                                        SET name=%s, status=%s,city=%s,address=%s, 
+                                        ogrn=%s,activity=%s,date=%s,region_id=%s
+                                        '''),[max_id,name,status,city,address,ogrn,inn,activity,date_registr,int(dict_reg[region]),name,status,city,address,ogrn,activity,date_registr,int(dict_reg[region])])
+                else:
+                    continue
+                
+     
         
+            
     except Exception as error:
         print('Error:',proxi,'---', error)
-        # Timer(4, scrapper).start()
+        Timer(4, scrapper).start()
 
-    
+    db.commit()
+    db.close() 
 scrapper.call_count = 0
 
 
 ###___main___###
 
 region_id()
-scrapper(url)
+scrapper()
