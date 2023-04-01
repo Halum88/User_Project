@@ -30,17 +30,17 @@ def rand_proxi():
                     database = db_name, user = user_name, password = user_pw, host="127.0.0.1", port="5432"
                 )   
         cursor = db.cursor() 
-        cursor.execute('''SELECT host FROM proxy''')
-        host = cursor.fetchall()
-        for i in host:
-            for j in i:
-                proxy_dict.append(j)
-        return proxy_dict
+        cursor.execute('''SELECT host FROM proxy ORDER BY random() LIMIT 1''')
+        host = cursor.fetchone()
+        if host is not None:
+            return host[0]
+        else:
+            return None
     except Exception as e:
         print('ERROR in DB - random proxies: ', e)
     finally:
         db.close()
-
+        
 
 ###Получаем мксимальное значение id в БД###
 def maxim_ip_id():
@@ -215,7 +215,7 @@ scrapper.call_count = 0
 
 
 ###___main___###
-maxim_ip_id()
-maxim_ooo_id()
-region_id()
-scrapper()
+# maxim_ip_id()
+# maxim_ooo_id()
+# region_id()
+# scrapper()
