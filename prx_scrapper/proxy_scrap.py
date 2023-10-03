@@ -8,8 +8,8 @@ from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
 
-base_url = 'https://free-proxy-list.net/'
-db_name = os.environ['DB_NAME']
+proxy_url = os.environ['PROXY_URL']
+db_name = os.environ['DB_PROXY']
 user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
 ua = UserAgent()
@@ -56,7 +56,7 @@ def maxim_id():
  
 def scrap_proxy():
     global count
-    response = get(base_url)
+    response = get(proxy_url)
     try:
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -80,7 +80,7 @@ def check():
     global proxy_dict
     try:
         for i in prx_list:
-            response = requests.get("https://www.1cont.ru/contragent/by-region", headers=headers, proxies={'https://':i,'http://':i}, timeout=5)
+            response = requests.get(f'{proxy_url}by-region', headers=headers, proxies={'https://':i,'http://':i}, timeout=5)
             if response.status_code == 200:
                 count_1 += 1  
                 proxy_dict.append(i) 

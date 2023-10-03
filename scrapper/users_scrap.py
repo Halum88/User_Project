@@ -1,5 +1,4 @@
 from fake_useragent import UserAgent
-import requests
 import random
 import os
 import psycopg2
@@ -8,8 +7,8 @@ from requests import get
 from threading import Timer
 
 
-url = 'https://www.1cont.ru/contragent/by-region'
-base_url = 'https://www.1cont.ru'
+url = os.environ['URL_SCRAPP']
+base_url = os.environ['BASE_URL']
 db_name = os.environ['DB_NAME']
 user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
@@ -215,7 +214,7 @@ scrapper.call_count = 0
 
 
 ###___main___###
-# maxim_ip_id()
-# maxim_ooo_id()
-# region_id()
-# scrapper()
+maxim_ip_id()
+maxim_ooo_id()
+region_id()
+scrapper()

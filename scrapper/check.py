@@ -7,7 +7,7 @@ from requests import get
 from bs4 import BeautifulSoup
 
 
-base_url = 'https://free-proxy-list.net/'
+base_url = os.environ['PROXY_URL']
 db_name = os.environ['DB_NAME']
 user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
