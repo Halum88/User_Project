@@ -1,5 +1,4 @@
 import os
-<<<<<<< HEAD
 import psycopg2
 from requests import get
 from dotenv import load_dotenv
@@ -13,20 +12,6 @@ user_pw = os.environ['USER_PW']
 db_host = os.environ['DB_HOST']
 db_port = os.environ['DB_PORT']
 check_url = os.environ['CHECK_URL']
-=======
-import requests
-import random
-import psycopg2
-import time
-from requests import get
-from bs4 import BeautifulSoup
-
-
-base_url = os.environ['PROXY_URL']
-db_name = os.environ['DB_NAME']
-user_name = os.environ['USER_NAME']
-user_pw = os.environ['USER_PW']
->>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a
 proxi_err = []
 count=0
 
@@ -37,13 +22,8 @@ def check_prx():
             database = db_name, 
             user = user_name, 
             password = user_pw, 
-<<<<<<< HEAD
             host=db_host, 
             port=db_port
-=======
-            host="127.0.0.1", 
-            port="5432"
->>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a
             )
         cursor = db.cursor()     
     except Exception as error:
@@ -55,16 +35,10 @@ def check_prx():
         for px in i:
             proxies = {"http": px, "https": px}
             try:
-<<<<<<< HEAD
                 con = get(check_url, proxies=proxies, timeout=0.9).text.strip()
                 if con == (str(px).split(':')[0]):
                     print('Proxy is working: ', px)
                     
-=======
-                con = get('http://icanhazip.com', proxies=proxies, timeout=0.9).text.strip()
-                if con == (str(px).split(':')[0]):
-                    pass
->>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a
                 else:
                     proxi_err.append(px)
             except Exception as error:
