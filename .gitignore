@@ -1,4 +1,7 @@
 venv
 .env
+<<<<<<< HEAD
 docker-compose.yml
 logs_prx
+=======
+>>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a

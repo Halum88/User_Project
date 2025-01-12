@@ -2,6 +2,7 @@ import os
 import requests
 import random
 import psycopg2
+<<<<<<< HEAD
 from datetime import datetime
 from requests import get
 from bs4 import BeautifulSoup
@@ -26,6 +27,18 @@ user_name = os.environ['USER_NAME']
 user_pw = os.environ['USER_PW']
 db_host = os.environ['DB_HOST']
 db_port = os.environ['DB_PORT']
+=======
+import time
+from requests import get
+from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
+
+
+proxy_url = os.environ['PROXY_URL']
+db_name = os.environ['DB_PROXY']
+user_name = os.environ['USER_NAME']
+user_pw = os.environ['USER_PW']
+>>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a
 ua = UserAgent()
 headers = {'User-Agent': ua.random} #рандомный user-agent
 
@@ -41,9 +54,14 @@ prx_list = []
 def init_db():
     try:
         db = psycopg2.connect(
+<<<<<<< HEAD
             database = db_name, user = user_name, password = user_pw, host=db_host, port=db_port
         )
         logging.info('Connect to DB')   
+=======
+            database = db_name, user = user_name, password = user_pw, host="127.0.0.1", port="5432"
+        )   
+>>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a
     except Exception as error:
         raise Exception('Nо connect to DB!', error)
     finally:
@@ -54,7 +72,11 @@ def maxim_id():
     global max_id
     try:
         db = psycopg2.connect(
+<<<<<<< HEAD
             database = db_name, user = user_name, password = user_pw, host=db_host, port=db_port
+=======
+            database = db_name, user = user_name, password = user_pw, host="127.0.0.1", port="5432"
+>>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a
         )   
         cursor = db.cursor()
         cursor.execute('''SELECT max(id) FROM proxy''')
@@ -85,7 +107,10 @@ def scrap_proxy():
                     ip = td[0].text.strip()
                     port = td[1].text.strip()
                     prx_list.append(f"{ip}:{port}")
+<<<<<<< HEAD
                     
+=======
+>>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a
          
     except Exception as e:
         raise Exception("Error:", response.status_code)
@@ -96,14 +121,21 @@ def check():
     global proxy_dict
     try:
         for i in prx_list:
+<<<<<<< HEAD
             response = requests.get(f'{proxy_url}', headers=headers, proxies={'https://':i,'http://':i}, timeout=5)
+=======
+            response = requests.get(f'{proxy_url}by-region', headers=headers, proxies={'https://':i,'http://':i}, timeout=5)
+>>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a
             if response.status_code == 200:
                 count_1 += 1  
                 proxy_dict.append(i) 
             else:
                 print('connect: NOT OK')
         print('proxies получено:', count_1)
+<<<<<<< HEAD
         logging.info('proxies получено: %s', count_1)
+=======
+>>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a
     except Exception as e:
         print('ERROR connect:', e)
 
@@ -112,7 +144,11 @@ def rec_db():
     global max_id
     try:
         db = psycopg2.connect(
+<<<<<<< HEAD
             database = db_name, user = user_name, password = user_pw, host=db_host, port=db_port
+=======
+            database = db_name, user = user_name, password = user_pw, host="127.0.0.1", port="5432"
+>>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a
         )   
         cursor = db.cursor()
         for px in proxy_dict:
@@ -123,7 +159,10 @@ def rec_db():
                                DO UPDATE
                                SET id=%s
                             '''),[max_id, px, max_id])
+<<<<<<< HEAD
         logging.info('insert to DB')
+=======
+>>>>>>> ca48b5bf56abd5d144447ca02a95850ae32b1a8a
     except Exception as e:
         raise e
     
