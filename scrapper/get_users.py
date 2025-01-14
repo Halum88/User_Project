@@ -27,6 +27,10 @@ def get_users(region_id):
     headers = {'User-Agent': UserAgent().random}
     
     url_reg = base_url+get_region_in_db(region_id)
+    db = connect_db()
+    cursor = db.cursor(cursor_factory=DictCursor)
+
+
 
 
     response = get(url_reg, headers=headers, proxies=proxis, timeout=5)
@@ -35,7 +39,7 @@ def get_users(region_id):
     current_page = 1
     users = []
     count = 0
-
+    
     while True: 
         try:
             url = f"{url_reg}?page={current_page}"
@@ -45,25 +49,61 @@ def get_users(region_id):
             soup = BeautifulSoup(response.text, 'html.parser')
 
             user_i = soup.find_all('div', class_='tr tbody-tr')
+            
 
             for user in user_i:
                 name = user.find('div', class_='td').find('a').text.strip()  # Имя пользователя
+                
                 count += 1
-                users.append(name)
+                if name.startswith('ИП'):
+                    l = user.find('div', class_='td').find('a', href=True)['href']   
+                    link = base_url+l                                                #Ссылка
+                    status = user.find('div', class_='td__text').text                #Статус
+
+                    if status == 'Действует':
+                        cursor.execute('''
+                            INSERT INTO users (name, link, region_id)
+                            VALUES (%s,%s,%s)
+                            ON CONFLICT (link)
+                            DO NOTHING
+                            RETURNING id
+                        ''', (name, link, region_id))
+                        db.commit()
+
+
+                elif not name.startswith('ИП'):
+                    l = user.find('div', class_='td').find('a', href=True)['href']   
+                    link = base_url+l                                                #Ссылка
+                    status = user.find('div', class_='td__text').text                #Статус
+
+                    if status == 'Действует':
+                        cursor.execute('''
+                            INSERT INTO companies (name, link, region_id)
+                            VALUES (%s,%s,%s)
+                            ON CONFLICT (link)
+                            DO NOTHING
+                            RETURNING id
+                        ''', (name, link, region_id))
+                        db.commit()
+                    
+
 
             next_page = soup.find('li', class_='PagedList-skipToNext')
             if next_page and 'disabled' not in next_page.get('class', []):  # Проверяем, активна ли кнопка "Next"
                 current_page += 1  # Переходим на следующую страницу
+                
             else:
+                print('Больше нет страниц')
                 break
        
         except Exception as e:
             print(f"Error: {e}")
             break
-    return count
+    
+    db.commit()
+    db.close()
 
 
-print(get_users(1))
 
-
+get_users(1)
 
