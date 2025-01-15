@@ -93,8 +93,8 @@ def get_region():
 
 
 
-# получение региона из БД
-def get_region_in_db(num):
+# получение региона из БД  
+def get_region_in_db(num=None):
     region_dict = []
     db = connect_db()
     cursor = db.cursor() 
@@ -115,12 +115,11 @@ def get_region_in_db(num):
     
     if records is not None:
         for i in records:
-            region_dict.append(i[2])
-        if num < len(region_dict):
-            return region_dict[num]
+            region_dict.append(f"{i[1]}")  
+        if num is not None:
+            if num < len(region_dict):
+                return region_dict[num]
+            else:
+                return 'No region with this number'
         else:
-            return 'No region with this number'
-
-    
-
-
+            return region_dict

@@ -89,8 +89,8 @@ def get_users(region_id):
 
 
             next_page = soup.find('li', class_='PagedList-skipToNext')
-            if next_page and 'disabled' not in next_page.get('class', []):  # Проверяем, активна ли кнопка "Next"
-                current_page += 1  # Переходим на следующую страницу
+            if next_page and 'disabled' not in next_page.get('class', []):  
+                current_page += 1  
                 
             else:
                 print('Больше нет страниц')
@@ -103,7 +103,4 @@ def get_users(region_id):
     db.commit()
     db.close()
 
-
-
-get_users(1)
 
